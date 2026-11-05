@@ -1,19 +1,9 @@
-name: CI & Deploy GitHub Pages
+name: CI
 
 on:
   push:
     branches: [main, master]
   pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   test-js:
@@ -25,32 +15,3 @@ jobs:
         with:
           node-version: 20
       - run: node tests/run-tests.js
-
-  test-verilog:
-    name: Verilog HDL Simulation (Icarus Verilog)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Icarus Verilog
-        run: sudo apt-get update && sudo apt-get install -y iverilog
-      - name: Compile and run Verilog testbench
-        run: |
-          iverilog -g2012 -o sim.vvp verilog/src/*.v verilog/tb/tb_digital_lab.v
-          vvp sim.vvp
-
-  deploy-pages:
-    name: Deploy to GitHub Pages
-    if: github.event_name != 'pull_request'
-    needs: [test-js]
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - id: deployment
-        uses: actions/deploy-pages@v4
