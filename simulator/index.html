@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Logic & K-Map Lab — Interactive Boolean, 7-Segment & Counter Studio</title>
+  <meta name="description" content="Laboratorium interaktif Sistem Digital: Karnaugh Map (K-Map) Solver, Boolean Minimizer, Logic Gate Schematic, BCD-to-7-Segment Decoder, Synchronous Counter, dan Verilog HDL Generator." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">⚡</span>
+      <div>
+        <h1>Digital Logic &amp; K-Map Studio</h1>
+        <p class="subtitle">Karnaugh Map Minimizer · Gate Schematic · BCD-to-7-Segment · Synchronous Counter · Verilog HDL</p>
+      </div>
+    </div>
+    <nav class="tabs" id="mainTabs" aria-label="Pilih modul praktikum">
+      <button class="tab active" data-tab="kmap">1. K-Map &amp; Gate Synthesis</button>
+      <button class="tab" data-tab="sevenseg">2. BCD-to-7-Segment Decoder</button>
+      <button class="tab" data-tab="counter">3. Sync Counter &amp; Timing Waveforms</button>
+    </nav>
+  </header>
+
+  <!-- ==================== TAB 1: K-MAP & GATE SYNTHESIS ==================== -->
+  <main id="tab-kmap" class="tab-view active">
+    <div class="kmap-grid">
+      <!-- Kolom Kiri: Konfigurasi & Truth Table -->
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Tabel Kebenaran (Truth Table)</h2>
+            <p class="muted">Klik baris untuk mengubah output: <code>0 → 1 → X (Don't Care)</code></p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <label>Variabel
+            <select id="varCountSelect">
+              <option value="2">2 Variabel (A, B)</option>
+              <option value="3">3 Variabel (A, B, C)</option>
+              <option value="4" selected>4 Variabel (A, B, C, D)</option>
+            </select>
+          </label>
+          <label>Preset RangkaianPraktikum
+            <select id="presetSelect">
+              <option value="majority">Majority Voter (≥2 HIGH)</option>
+              <option value="parity">Odd Parity Detector (XOR)</option>
+              <option value="prime" selected>Detektor Bilangan Prima (4-bit)</option>
+              <option value="seg_a">7-Segment: Segmen 'a' (BCD + X)</option>
+              <option value="corners">4 Pojok Wrap-Around (B'D')</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn small" id="fillZeroBtn">Semua 0</button>
+          <button class="btn small" id="fillOneBtn">Semua 1</button>
+          <button class="btn small" id="invertBtn">Invert (0↔1)</button>
+          <button class="btn small" id="randomBtn">Acak + X</button>
+        </div>
+
+        <div class="tt-wrap">
+          <table class="tt-table" id="truthTable"></table>
+        </div>
+      </section>
+
+      <!-- Kolom Tengah: K-Map Canvas & Persamaan Boolean -->
+      <section class="stage-col">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Peta Karnaugh (K-Map) &amp; Implicant Loops</h2>
+              <p class="muted">Klik langsung sel K-Map untuk mengganti nilai <code>0 / 1 / X</code>. Loop berwarna menunjukkan Prime Implicant terpilih.</p>
+            </div>
+            <div class="stat-badges" id="kmapStats"></div>
+          </div>
+          <div class="canvas-box kmap-box">
+            <canvas id="kmapCanvas"></canvas>
+          </div>
+          <div class="group-chips" id="groupChips"></div>
+        </div>
+
+        <div class="card">
+          <h2>Persamaan Boolean Minimum</h2>
+          <div class="eq-box">
+            <div class="eq-row">
+              <span class="eq-tag sop">SOP</span>
+              <code id="sopText" class="eq-code">Y = 0</code>
+            </div>
+            <div class="eq-row">
+              <span class="eq-tag pos">POS</span>
+              <code id="posText" class="eq-code">Y = 0</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kolom Kanan: Rangkaian Gerbang Logika & Generator Verilog -->
+      <section class="stage-col">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Skema Gerbang Logika &amp; Simulasi</h2>
+              <p class="muted">Klik tombol input di bawah untuk menguji aliran logika <code>0/1</code> secara langsung.</p>
+            </div>
+            <label class="check-inline">
+              <input type="checkbox" id="nandOnlyChk" /> NAND-Only
+            </label>
+          </div>
+          <div class="test-switches" id="testSwitches"></div>
+          <div class="canvas-box schem-box">
+            <canvas id="schemCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Synthesizable Verilog HDL</h2>
+            <button class="btn ghost small" id="copyVerilogBtn">{ } Salin Verilog</button>
+          </div>
+          <pre class="code-block"><code id="verilogCode"></code></pre>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==================== TAB 2: BCD-TO-7-SEGMENT LAB ==================== -->
+  <main id="tab-sevenseg" class="tab-view">
+    <div class="seg-layout">
+      <section class="card">
+        <h2>Input 4-Bit BCD (D3 D2 D1 D0)</h2>
+        <p class="muted">Klik bit switch atau pilih angka heksadesimal untuk melihat segmen mana yang aktif.</p>
+        <div class="bcd-switches" id="bcdSwitches"></div>
+        <div class="keypad" id="bcdKeypad"></div>
+
+        <label class="full-label">Perlakuan Input 10–15 (1010₂ – 1111₂)
+          <select id="invalidModeSelect">
+            <option value="dontcare" selected>Don't Care 'X' (Standar Praktikum IC 7447 — paling hemat gerbang)</option>
+            <option value="hex">Tampilkan Hexadecimal (A, b, C, d, E, F)</option>
+            <option value="blank">Padamkan Semua (0)</option>
+          </select>
+        </label>
+
+        <div class="canvas-box seg-display-box">
+          <canvas id="sevenSegCanvas"></canvas>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>7 Persamaan K-Map Segmen (a – g)</h2>
+            <p class="muted">Klik salah satu baris segmen untuk menginspeksi K-Map-nya atau membukanya di Studio K-Map.</p>
+          </div>
+        </div>
+        <div id="segEquationsList" class="seg-eq-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2 id="segKmapTitle">K-Map Segmen 'a'</h2>
+            <p class="muted">Visualisasi pengelompokan minterm untuk segmen yang dipilih.</p>
+          </div>
+          <button class="btn primary small" id="openSegInStudioBtn">Buka di Tab 1 (K-Map Studio) →</button>
+        </div>
+        <div class="canvas-box kmap-box">
+          <canvas id="segKmapCanvas"></canvas>
+        </div>
+        <pre class="code-block"><code id="segVerilogCode"></code></pre>
+      </section>
+    </div>
+  </main>
+
+  <!-- ==================== TAB 3: SYNC COUNTER & TIMING ==================== -->
+  <main id="tab-counter" class="tab-view">
+    <div class="counter-layout">
+      <section class="card">
+        <h2>4-Bit Synchronous Up/Down Counter</h2>
+        <p class="muted">Simulasi rangkaian sekuensial berbasis D / JK Flip-Flop yang diumpankan ke BCD-to-7-Segment Decoder.</p>
+
+        <div class="btn-row">
+          <button class="btn primary" id="clkRunBtn">⏸ Pause Clock</button>
+          <button class="btn" id="clkStepBtn">⎍ Step 1 Edge</button>
+          <button class="btn" id="clkResetBtn">↺ Sync Reset</button>
+        </div>
+
+        <div class="toolbar">
+          <label>Mode Modulo
+            <select id="counterModSelect">
+              <option value="10" selected>Modulo-10 (BCD Decade 0–9)</option>
+              <option value="16">Modulo-16 (Binary 0–F)</option>
+            </select>
+          </label>
+          <label>Frekuensi Clock
+            <select id="clkHzSelect">
+              <option value="1">1 Hz (Lambat)</option>
+              <option value="2" selected>2 Hz (Sedang)</option>
+              <option value="5">5 Hz (Cepat)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="toolbar">
+          <label class="check-inline"><input type="checkbox" id="cntEnableChk" checked /> Enable (EN = 1)</label>
+          <label class="check-inline"><input type="checkbox" id="cntDirChk" checked /> Direction UP (DIR = 1)</label>
+        </div>
+
+        <div class="ff-cards" id="ffCards"></div>
+        <div class="canvas-box seg-small-box">
+          <canvas id="cntSegCanvas"></canvas>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Logic Analyzer — Digital Timing Diagram</h2>
+            <p class="muted">Perhatikan bahwa perubahan bit <code>Q0..Q3</code> selalu serempak tepat pada <strong>rising edge (↑)</strong> sinyal <code>CLK</code>.</p>
+          </div>
+        </div>
+        <div class="canvas-box timing-box">
+          <canvas id="timingCanvas"></canvas>
+        </div>
+
+        <h3 style="margin-top:16px">Modul Verilog: 4-Bit Synchronous Counter</h3>
+        <pre class="code-block"><code>module sync_counter_4bit #(parameter MOD = 10) (
+    input  wire       clk,
+    input  wire       rst,      // Synchronous active-high reset
+    input  wire       en,       // Count enable
+    input  wire       dir_up,   // 1 = count up, 0 = count down
+    output reg  [3:0] q
+);
+    always @(posedge clk) begin
+        if (rst)
+            q &lt;= 4'd0;
+        else if (en) begin
+            if (dir_up)
+                q &lt;= (q == MOD - 1) ? 4'd0 : q + 4'd1;
+            else
+                q &lt;= (q == 4'd0) ? (MOD - 1) : q - 4'd1;
+        end
+    end
+endmodule</code></pre>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Digital Logic &amp; K-Map Studio — Dibuat dengan JavaScript murni &amp; modul Verilog HDL (<code>/verilog</code>).
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="js/core/qm.js"></script>
+  <script src="js/core/sevenSeg.js"></script>
+  <script src="js/ui/renderers.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

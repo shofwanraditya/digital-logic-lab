@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test-js:
+    name: Boolean & K-Map Unit Tests (Node.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tests/run-tests.js
+
+  test-verilog:
+    name: Verilog HDL Simulation (Icarus Verilog)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Compile and run Verilog testbench
+        run: |
+          iverilog -g2012 -o sim.vvp verilog/src/*.v verilog/tb/tb_digital_lab.v
+          vvp sim.vvp
