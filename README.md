@@ -6,7 +6,7 @@
 
 ---
 
-## 📸 Preview Laboratorium
+##Preview 
 
 | 1. K-Map Solver & Gate Schematic | 2. BCD-to-7-Segment Decoder (`a–g`) | 3. Synchronous Counter & Timing Analyzer |
 | :---: | :---: | :---: |
