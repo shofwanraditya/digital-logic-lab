@@ -3,231 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Digital Logic & K-Map Lab — Interactive Boolean, 7-Segment & Counter Studio</title>
-  <meta name="description" content="Laboratorium interaktif Sistem Digital: Karnaugh Map (K-Map) Solver, Boolean Minimizer, Logic Gate Schematic, BCD-to-7-Segment Decoder, Synchronous Counter, dan Verilog HDL Generator." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <title>DLS-04 // Digital Logic &amp; K-Map Workbench</title>
+  <meta name="description" content="Karnaugh Map (K-Map) minimizer, gate-level schematic, BCD-to-7-Segment decoder, and 4-bit synchronous counter workbench." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="logo">⚡</span>
-      <div>
-        <h1>Digital Logic &amp; K-Map Studio</h1>
-        <p class="subtitle">Karnaugh Map Minimizer · Gate Schematic · BCD-to-7-Segment · Synchronous Counter · Verilog HDL</p>
-      </div>
+  <header class="menubar">
+    <div class="menubar-left">
+      <span class="app-code">DLS-04</span>
+      <span class="sep">/</span>
+      <h1 class="app-title">Digital Logic Workbench</h1>
+      <span class="app-ver">rev 1.2 · Quine–McCluskey + IEEE-1364 Verilog</span>
     </div>
-    <nav class="tabs" id="mainTabs" aria-label="Pilih modul praktikum">
-      <button class="tab active" data-tab="kmap">1. K-Map &amp; Gate Synthesis</button>
-      <button class="tab" data-tab="sevenseg">2. BCD-to-7-Segment Decoder</button>
-      <button class="tab" data-tab="counter">3. Sync Counter &amp; Timing Waveforms</button>
+    <nav class="tabs" id="mainTabs" aria-label="Pilih lembar kerja">
+      <button class="tab active" data-tab="kmap">[01] K-Map &amp; Gate Netlist</button>
+      <button class="tab" data-tab="sevenseg">[02] 74LS47 BCD-to-7-Seg</button>
+      <button class="tab" data-tab="counter">[03] 4-Bit Sync Counter</button>
     </nav>
   </header>
 
   <!-- ==================== TAB 1: K-MAP & GATE SYNTHESIS ==================== -->
   <main id="tab-kmap" class="tab-view active">
-    <div class="kmap-grid">
-      <!-- Kolom Kiri: Konfigurasi & Truth Table -->
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h2>Tabel Kebenaran (Truth Table)</h2>
-            <p class="muted">Klik baris untuk mengubah output: <code>0 → 1 → X (Don't Care)</code></p>
-          </div>
+    <div class="workbench-3col">
+      <!-- Kolom Kiri: Truth Table -->
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title">TRUTH TABLE INPUT</span>
+          <span class="panel-sub">klik baris: 0 → 1 → X</span>
         </div>
-
-        <div class="toolbar">
-          <label>Variabel
-            <select id="varCountSelect">
-              <option value="2">2 Variabel (A, B)</option>
-              <option value="3">3 Variabel (A, B, C)</option>
-              <option value="4" selected>4 Variabel (A, B, C, D)</option>
-            </select>
-          </label>
-          <label>Preset RangkaianPraktikum
-            <select id="presetSelect">
-              <option value="majority">Majority Voter (≥2 HIGH)</option>
-              <option value="parity">Odd Parity Detector (XOR)</option>
-              <option value="prime" selected>Detektor Bilangan Prima (4-bit)</option>
-              <option value="seg_a">7-Segment: Segmen 'a' (BCD + X)</option>
-              <option value="corners">4 Pojok Wrap-Around (B'D')</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn small" id="fillZeroBtn">Semua 0</button>
-          <button class="btn small" id="fillOneBtn">Semua 1</button>
-          <button class="btn small" id="invertBtn">Invert (0↔1)</button>
-          <button class="btn small" id="randomBtn">Acak + X</button>
-        </div>
-
-        <div class="tt-wrap">
-          <table class="tt-table" id="truthTable"></table>
-        </div>
-      </section>
-
-      <!-- Kolom Tengah: K-Map Canvas & Persamaan Boolean -->
-      <section class="stage-col">
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h2>Peta Karnaugh (K-Map) &amp; Implicant Loops</h2>
-              <p class="muted">Klik langsung sel K-Map untuk mengganti nilai <code>0 / 1 / X</code>. Loop berwarna menunjukkan Prime Implicant terpilih.</p>
-            </div>
-            <div class="stat-badges" id="kmapStats"></div>
-          </div>
-          <div class="canvas-box kmap-box">
-            <canvas id="kmapCanvas"></canvas>
-          </div>
-          <div class="group-chips" id="groupChips"></div>
-        </div>
-
-        <div class="card">
-          <h2>Persamaan Boolean Minimum</h2>
-          <div class="eq-box">
-            <div class="eq-row">
-              <span class="eq-tag sop">SOP</span>
-              <code id="sopText" class="eq-code">Y = 0</code>
-            </div>
-            <div class="eq-row">
-              <span class="eq-tag pos">POS</span>
-              <code id="posText" class="eq-code">Y = 0</code>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Kolom Kanan: Rangkaian Gerbang Logika & Generator Verilog -->
-      <section class="stage-col">
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h2>Skema Gerbang Logika &amp; Simulasi</h2>
-              <p class="muted">Klik tombol input di bawah untuk menguji aliran logika <code>0/1</code> secara langsung.</p>
-            </div>
-            <label class="check-inline">
-              <input type="checkbox" id="nandOnlyChk" /> NAND-Only
+        <div class="panel-body">
+          <div class="field-grid">
+            <label>Jumlah Input
+              <select id="varCountSelect">
+                <option value="2">2-bit (A, B)</option>
+                <option value="3">3-bit (A, B, C)</option>
+                <option value="4" selected>4-bit (A, B, C, D)</option>
+              </select>
+            </label>
+            <label>Vektor Uji Standar
+              <select id="presetSelect">
+                <option value="majority">Majority Voter</option>
+                <option value="parity">Odd Parity (XOR)</option>
+                <option value="prime" selected>4-Bit Prime Detector</option>
+                <option value="seg_a">74LS47 Segmen-a</option>
+                <option value="corners">Corner Wrap (B'D')</option>
+              </select>
             </label>
           </div>
-          <div class="test-switches" id="testSwitches"></div>
-          <div class="canvas-box schem-box">
-            <canvas id="schemCanvas"></canvas>
-          </div>
-        </div>
 
-        <div class="card">
-          <div class="card-head">
-            <h2>Synthesizable Verilog HDL</h2>
-            <button class="btn ghost small" id="copyVerilogBtn">{ } Salin Verilog</button>
+          <div class="btn-strip">
+            <button class="btn" id="fillZeroBtn">CLR (0)</button>
+            <button class="btn" id="fillOneBtn">SET (1)</button>
+            <button class="btn" id="invertBtn">INV (~Y)</button>
+            <button class="btn" id="randomBtn">RAND</button>
           </div>
-          <pre class="code-block"><code id="verilogCode"></code></pre>
+
+          <div class="tt-wrap">
+            <table class="tt-table" id="truthTable"></table>
+          </div>
         </div>
       </section>
+
+      <!-- Kolom Tengah: K-Map -->
+      <div class="col-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <span class="panel-title">KARNAUGH MAP (GRAY CODE ORDER)</span>
+            <div class="stat-badges" id="kmapStats"></div>
+          </div>
+          <div class="panel-body">
+            <div class="canvas-frame kmap-box">
+              <canvas id="kmapCanvas"></canvas>
+            </div>
+            <div class="group-chips" id="groupChips"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <span class="panel-title">MINIMIZED BOOLEAN EXPRESSIONS</span>
+            <span class="panel-sub">Quine–McCluskey exact cover</span>
+          </div>
+          <div class="panel-body">
+            <div class="eq-table">
+              <div class="eq-row">
+                <span class="eq-label">SOP (Sum of Products)</span>
+                <code id="sopText" class="eq-code">Y = 0</code>
+              </div>
+              <div class="eq-row">
+                <span class="eq-label">POS (Product of Sums)</span>
+                <code id="posText" class="eq-code">Y = 0</code>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Kolom Kanan: Gate Schematic & Verilog -->
+      <div class="col-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <span class="panel-title">TWO-LEVEL GATE SCHEMATIC</span>
+            <label class="inline-chk">
+              <input type="checkbox" id="nandOnlyChk" /> NAND-2/NAND-N mapping
+            </label>
+          </div>
+          <div class="panel-body">
+            <div class="test-switches" id="testSwitches"></div>
+            <div class="canvas-frame schem-box">
+              <canvas id="schemCanvas"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <span class="panel-title">IEEE-1364 VERILOG RTL</span>
+            <button class="btn small" id="copyVerilogBtn">Copy .v</button>
+          </div>
+          <div class="panel-body">
+            <pre class="code-block"><code id="verilogCode"></code></pre>
+          </div>
+        </section>
+      </div>
     </div>
   </main>
 
   <!-- ==================== TAB 2: BCD-TO-7-SEGMENT LAB ==================== -->
   <main id="tab-sevenseg" class="tab-view">
-    <div class="seg-layout">
-      <section class="card">
-        <h2>Input 4-Bit BCD (D3 D2 D1 D0)</h2>
-        <p class="muted">Klik bit switch atau pilih angka heksadesimal untuk melihat segmen mana yang aktif.</p>
-        <div class="bcd-switches" id="bcdSwitches"></div>
-        <div class="keypad" id="bcdKeypad"></div>
+    <div class="workbench-3col">
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title">BCD INPUT REGISTER (D3..D0)</span>
+          <span class="panel-sub">IC 74LS47 / 74LS48</span>
+        </div>
+        <div class="panel-body">
+          <div class="bcd-switches" id="bcdSwitches"></div>
+          <div class="keypad" id="bcdKeypad"></div>
 
-        <label class="full-label">Perlakuan Input 10–15 (1010₂ – 1111₂)
-          <select id="invalidModeSelect">
-            <option value="dontcare" selected>Don't Care 'X' (Standar Praktikum IC 7447 — paling hemat gerbang)</option>
-            <option value="hex">Tampilkan Hexadecimal (A, b, C, d, E, F)</option>
-            <option value="blank">Padamkan Semua (0)</option>
-          </select>
-        </label>
+          <label class="block-label">Kondisi Input 1010₂ – 1111₂ (10–15)
+            <select id="invalidModeSelect">
+              <option value="dontcare" selected>Don't Care 'X' (74LS47 Minimal Gate)</option>
+              <option value="hex">Full Hexadecimal (0–9, A–F)</option>
+              <option value="blank">Active Blank (Output = 0)</option>
+            </select>
+          </label>
 
-        <div class="canvas-box seg-display-box">
-          <canvas id="sevenSegCanvas"></canvas>
+          <div class="canvas-frame seg-display-box">
+            <canvas id="sevenSegCanvas"></canvas>
+          </div>
         </div>
       </section>
 
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h2>7 Persamaan K-Map Segmen (a – g)</h2>
-            <p class="muted">Klik salah satu baris segmen untuk menginspeksi K-Map-nya atau membukanya di Studio K-Map.</p>
-          </div>
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title">SEGMENT EQUATION TABLE (a..g)</span>
+          <span class="panel-sub">klik baris untuk inspeksi K-Map</span>
         </div>
-        <div id="segEquationsList" class="seg-eq-list"></div>
+        <div class="panel-body">
+          <div id="segEquationsList" class="seg-eq-list"></div>
+        </div>
       </section>
 
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h2 id="segKmapTitle">K-Map Segmen 'a'</h2>
-            <p class="muted">Visualisasi pengelompokan minterm untuk segmen yang dipilih.</p>
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title" id="segKmapTitle">K-MAP INSPECTOR: SEG a</span>
+          <button class="btn small" id="openSegInStudioBtn">Load to [01] Workbench →</button>
+        </div>
+        <div class="panel-body">
+          <div class="canvas-frame kmap-box">
+            <canvas id="segKmapCanvas"></canvas>
           </div>
-          <button class="btn primary small" id="openSegInStudioBtn">Buka di Tab 1 (K-Map Studio) →</button>
+          <pre class="code-block" style="margin-top:10px"><code id="segVerilogCode"></code></pre>
         </div>
-        <div class="canvas-box kmap-box">
-          <canvas id="segKmapCanvas"></canvas>
-        </div>
-        <pre class="code-block"><code id="segVerilogCode"></code></pre>
       </section>
     </div>
   </main>
 
   <!-- ==================== TAB 3: SYNC COUNTER & TIMING ==================== -->
   <main id="tab-counter" class="tab-view">
-    <div class="counter-layout">
-      <section class="card">
-        <h2>4-Bit Synchronous Up/Down Counter</h2>
-        <p class="muted">Simulasi rangkaian sekuensial berbasis D / JK Flip-Flop yang diumpankan ke BCD-to-7-Segment Decoder.</p>
-
-        <div class="btn-row">
-          <button class="btn primary" id="clkRunBtn">⏸ Pause Clock</button>
-          <button class="btn" id="clkStepBtn">⎍ Step 1 Edge</button>
-          <button class="btn" id="clkResetBtn">↺ Sync Reset</button>
+    <div class="counter-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title">SYNCHRONOUS 4-BIT UP/DOWN COUNTER</span>
+          <span class="panel-sub">posedge CLK triggered</span>
         </div>
+        <div class="panel-body">
+          <div class="btn-strip">
+            <button class="btn primary" id="clkRunBtn">PAUSE CLK</button>
+            <button class="btn" id="clkStepBtn">STEP ½ CLK</button>
+            <button class="btn" id="clkResetBtn">SYNC RST</button>
+          </div>
 
-        <div class="toolbar">
-          <label>Mode Modulo
-            <select id="counterModSelect">
-              <option value="10" selected>Modulo-10 (BCD Decade 0–9)</option>
-              <option value="16">Modulo-16 (Binary 0–F)</option>
-            </select>
-          </label>
-          <label>Frekuensi Clock
-            <select id="clkHzSelect">
-              <option value="1">1 Hz (Lambat)</option>
-              <option value="2" selected>2 Hz (Sedang)</option>
-              <option value="5">5 Hz (Cepat)</option>
-            </select>
-          </label>
-        </div>
+          <div class="field-grid">
+            <label>Modulo Rangkaian
+              <select id="counterModSelect">
+                <option value="10" selected>MOD-10 (BCD 0..9)</option>
+                <option value="16">MOD-16 (Binary 0..F)</option>
+              </select>
+            </label>
+            <label>Laju Clock Osilator
+              <select id="clkHzSelect">
+                <option value="1">1.0 Hz</option>
+                <option value="2" selected>2.0 Hz</option>
+                <option value="5">5.0 Hz</option>
+              </select>
+            </label>
+          </div>
 
-        <div class="toolbar">
-          <label class="check-inline"><input type="checkbox" id="cntEnableChk" checked /> Enable (EN = 1)</label>
-          <label class="check-inline"><input type="checkbox" id="cntDirChk" checked /> Direction UP (DIR = 1)</label>
-        </div>
+          <div class="field-grid" style="margin-top:6px">
+            <label class="inline-chk"><input type="checkbox" id="cntEnableChk" checked /> EN (Count Enable)</label>
+            <label class="inline-chk"><input type="checkbox" id="cntDirChk" checked /> DIR (1=UP, 0=DOWN)</label>
+          </div>
 
-        <div class="ff-cards" id="ffCards"></div>
-        <div class="canvas-box seg-small-box">
-          <canvas id="cntSegCanvas"></canvas>
+          <div class="ff-cards" id="ffCards"></div>
+          <div class="canvas-frame seg-small-box">
+            <canvas id="cntSegCanvas"></canvas>
+          </div>
         </div>
       </section>
 
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h2>Logic Analyzer — Digital Timing Diagram</h2>
-            <p class="muted">Perhatikan bahwa perubahan bit <code>Q0..Q3</code> selalu serempak tepat pada <strong>rising edge (↑)</strong> sinyal <code>CLK</code>.</p>
+      <section class="panel">
+        <div class="panel-head">
+          <span class="panel-title">LOGIC ANALYZER TIMING TRACE</span>
+          <span class="panel-sub">Channels: CLK, EN, DIR, Q[3:0]</span>
+        </div>
+        <div class="panel-body">
+          <div class="canvas-frame timing-box">
+            <canvas id="timingCanvas"></canvas>
           </div>
-        </div>
-        <div class="canvas-box timing-box">
-          <canvas id="timingCanvas"></canvas>
-        </div>
 
-        <h3 style="margin-top:16px">Modul Verilog: 4-Bit Synchronous Counter</h3>
-        <pre class="code-block"><code>module sync_counter_4bit #(parameter MOD = 10) (
+          <div class="panel-sub" style="margin:12px 0 4px;font-weight:700">VERILOG RTL: sync_counter_4bit.v</div>
+          <pre class="code-block"><code>module sync_counter_4bit #(parameter MOD = 10) (
     input  wire       clk,
     input  wire       rst,      // Synchronous active-high reset
     input  wire       en,       // Count enable
@@ -245,12 +252,14 @@
         end
     end
 endmodule</code></pre>
+        </div>
       </section>
     </div>
   </main>
 
-  <footer class="footer">
-    Digital Logic &amp; K-Map Studio — Dibuat dengan JavaScript murni &amp; modul Verilog HDL (<code>/verilog</code>).
+  <footer class="statusbar">
+    <span>RNEST DIGITAL SYSTEMS WORKBENCH</span>
+    <span>ENGINE: QUINE–MCCLUSKEY EXACT SOLVER · VERILOG-2005</span>
   </footer>
 
   <div id="toast" class="toast"></div>
