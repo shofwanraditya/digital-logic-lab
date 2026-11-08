@@ -1,17 +1,12 @@
-# ⚡ Digital Logic, Karnaugh Map (K-Map) Solver & Verilog HDL Studio
+# Digital Logic, Karnaugh Map (K-Map) Solver & Verilog HDL Studio
 
-[![Live Demo](https://img.shields.io/badge/%F0%9F%9A%80%20Live%20Demo-GitHub%20Pages-00b4d8?style=for-the-badge)](https://shofwanraditya.github.io/digital-logic-lab/simulator/)
-[![CI](https://img.shields.io/github/actions/workflow/status/shofwanraditya/digital-logic-lab/ci.yml?branch=main&style=for-the-badge&label=Tests%20%28JS%20%2B%20Icarus%20Verilog%29)](https://github.com/shofwanraditya/digital-logic-lab/actions)
-[![HDL](https://img.shields.io/badge/HDL-Verilog%20IEEE%201364-purple?style=for-the-badge)](#modul-verilog-hdl-verilog)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-
-> **👉 Coba Langsung di Browser:** **[https://shofwanraditya.github.io/digital-logic-lab/](https://shofwanraditya.github.io/digital-logic-lab/simulator/)**
+> **Link Demo:** **[https://shofwanraditya.github.io/digital-logic-lab/](https://shofwanraditya.github.io/digital-logic-lab/simulator/)**
 >
 > **Interactive Digital Systems Laboratory** — menggabungkan penyederhanaan Aljabar Boolean (**Quine–McCluskey & Karnaugh Map 2–4 Variabel**), simulasi skema gerbang logika **AND-OR / NAND-Only**, **BCD-to-7-Segment Decoder (`a–g`)**, **4-Bit Synchronous Up/Down Counter** dengan *Logic Analyzer Timing Diagram*, serta **Generator & Testbench Verilog HDL**.
 
 ---
 
-## 📸 Preview Laboratorium
+## Preview 
 
 | 1. K-Map Solver & Gate Schematic | 2. BCD-to-7-Segment Decoder (`a–g`) | 3. Synchronous Counter & Timing Analyzer |
 | :---: | :---: | :---: |
@@ -19,7 +14,7 @@
 
 ---
 
-## ✨ Fitur Utama
+##Fitur Utama
 
 ### 1. Karnaugh Map (K-Map) Solver & Gate-Level Schematic (Tab 1)
 * **2, 3, dan 4 Variabel (`A, B, C, D`):** Klik langsung baris pada **Tabel Kebenaran (Truth Table)** atau sel pada **Peta Karnaugh** untuk mengubah output antara `0`, `1`, dan `X` (*Don't Care*).
@@ -37,7 +32,7 @@
 
 ---
 
-## 🧠 Arsitektur & Alur Sintesis Logika Digital
+## Arsitektur & Alur Sintesis Logika Digital
 
 ```mermaid
 flowchart LR
@@ -60,7 +55,7 @@ Dengan input BCD $\text{D3 D2 D1 D0}$, ketujuh segmen dapat direduksi menjadi:
 
 ---
 
-## 📂 Struktur Repositori
+## Struktur Repositori
 
 ```text
 digital-logic-lab/
@@ -87,7 +82,7 @@ digital-logic-lab/
 
 ---
 
-## 🚀 Cara Menjalankan
+##Cara Menjalankan
 
 ### 1. Menjalankan Simulator Web
 Tidak memerlukan instalasi *package* apa pun:
@@ -105,6 +100,6 @@ vvp sim.vvp
 
 ---
 
-## 📜 Lisensi
+##Lisensi
 
 Didistribusikan di bawah lisensi **MIT**.
